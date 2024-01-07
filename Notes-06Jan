@@ -1,0 +1,483 @@
+
+Trainer: Sonal Mittal
+====================================
+
+Configuration management with Ansible 
+
+Infrastructure as a Code tool - Terraform
+
+====================================
+
+Configuration management with Ansible
+
+Dave -> Dev team  -> deveop + build
+Drey -> Operation -> deploy it on desired server
+
+one a single servers:
+
+> VM is up and running
+> desired OS
+> webserver/appserver/dbserver
+> runtime- java,python,php
+> Create users, groups and permissions
+> configuration files
+> create directory,files
+> copy the code on the desired location
+> Storage
+> port numbers
+
+200 servers we have to deploy the application
+
+ > manually managing hundereds of servers will be challenging
+ > lead to human errors
+ > In realtime we have many environments > Dev, QA, pre-prod, prodcution
+ > traditionally managing servers were done using scripts
+ > writing/maintaing these scripts is difficult and requires and expert in shell scripting
+
+
+Configuration:
+=====================================
+> VM is up and running
+> desired OS
+> webserver/appserver/dbserver
+> runtime- java,python,php
+> Create users, groups and permissions
+> configuration files
+> create directory,files
+> copy the code on the desired location
+> Storage
+> port numbers
+
+
+Without automation building and maintaining large scale servers is difficult and is risky due to human erorrs.
+
+Configuration Management 
+=============================
+> is an Automated method for maintaining/updating your servers/VM 
+> installing software,packages & application.
+> goal of CM is :
+    > describe the desired configuration that we need on the servers
+    > ensure the desired configuration are available on the servers
+    > bring in consistency across all servers
+Automation --> tool ---> code --> same code works on various servers--> consistency
+
+Benifts of Configuration management
+================================
+
+ > primary benefit --> consistency across various servers
+ > Automated process -> imporves efficiency--> no manual process
+ > Able to manage many target servers with less resources
+
+=====================================
+
+Configuration management Tools:
+=======================================
+
+> Chef
+> Puppet
+> Ansible              
+> Saltstack
+
+Few pointers to keep in your mind while choosing the tool:
+
+ > Architecture of the tool
+ > programming langauge
+ > OS
+ > open source or paid tool
+ > community support
+ > help you to achieve your configuration targets
+ > pull approch 
+    > Chef
+	> Built in Ruby -> one should have knowledge in ruby
+	> suitable for organization with hetrogenous infrastructure
+        > pull approach
+        > we have recipies which we use in cookbooks in chef
+        > difficult to learn
+        > set up of tool is also time consuming
+    > Puppet
+        > tool was introduced in 2004
+        > Built in Ruby -> one should have knowledge in ruby
+        > puppet code as an admin you will write using ruby or puppet DSL
+        > the main server doesnot have mush control
+        > It is the puppet agent--> that pulls the changes and applies changes on itself
+
+In pull approach the changes are pulled by the agent process
+Master noce or the controller will not make any changes to the agent nodes
+Agents will pull the changes as per the schedule
+
+ > push approch
+    > Ansible
+       > open source tool
+       > its an agentless tool
+       > installation is very easy
+       > RHEL product -> python based tool
+       > Code is written in YAML -> no coding skills required  
+       > the log of playbook execution can be seen on the master node itself 
+       > installed on any linux server only but can connect to windows Agent and do changes on it
+       > Ansible also has a GUI -> ansible Tower
+
+    > Saltstack
+       > CLI tool , push approch
+       > YAMl or DSL
+       > python based tool
+       > Simple tool and easy to set up
+       > also has a Gui but it reacently got introduced
+
+
+=============================================
+
+All the tools have architecture where we have Controller and worker nodes
+Ansible is most easiest to set up. Other tools are modrate to set up
+Chef & puppet -> rubuy or DSL
+Ansible & Saltstack -> YAML
+learning -> Chef & puppet -> difficult
+Ansible & Saltstack > easy
+Cloud availability -> puppet, chef
+Anisble and saltstack not available on cloud
+Communication:
+Chef --> knife tool
+puppet : SSL
+ansible: SSH
+saltstack: SSH
+
+=================================================
+
+Ansible Architecture:
+================================================
+
+Components of Ansible Controller:
+
+> Ansible will always be installed on a VM with Linux OS
+
+Inventory File:
+=====================
+
+Inventory file is of 2 types:
+============================================
+Which Consists of the list of Ip address or Hostnames of agent servers  where configuration changes have to be done
+
+ > static inventory file
+
+	> admin will create this file
+        > This file name by default is hosts
+	> it has no extension, it is a text file
+	> ansible gives this file by default in the directory /etc/ansible
+        > you can also create your own inventory file
+
+ > dynamic inventory file
+
+       > if my infrasturcture is on Cloud -> Dynamic
+       > Ansible gives could dependent plugins that help to connect to cloud provider
+       > Ansible will then automatically compute the inventory file
+       > this inventory file will be YAML format
+       > Depending uponn your region/fileter on the cloud that inventory file will have the VM hostnames 
+
+
+Modules in Ansible:
+========================================
+> Core building blocks of Ansible
+> Modules represents small unit of code each one of which provides a specific functionality
+> These modules ar eused in ansible Playbook
+> Small small python programs that provides ready made code/login to do any change on the host servers
+> every modules will take some arguments/inputs form the admin and then exeucte the module on the hosts erver
+> the input is given in JSON format
+
+Example:
+==========================
+get_url - module of ansible
+
+task:it goes to given URL and download the file in the desired directory of the server
+
+module needs 2 arguments: 
+
+url=https://tomcat.apache.org/tomcat-7.0-doc/appdev/sample/sample.war
+dest=usr/local/tomcat/webapps
+
+===============================================
+Playbook
+===============================================
+
+> A plybook is where as an admin your will configuration code
+> this file will be written in YAML
+> In this file we 2 sections:
+    > host servers where we have to do changes
+    > tasks & modules on what chnages to be done
+
+> A playbookw ill be converted to a python program and copied on the hostservers using SSH
+> In cases windows playbook--> it will be converted to powershell scriots and copied on hosts ervers suing WINRM
+    
+
+============================================================
+
+
+Open SSH connection to do password less authentication with Worker nodes
+
+===============================================
+Step 1: Create a username "ansiuser" and give password "ansiuser" to it
+
+The same user and password should be there on other VM also
+
+Step 2: Because we have to copy the SSH key on the worker nodes using the SSH command
+
+On all the machine we have to do this small setting in SSHD config files-> enable passwordauthentication = Yes
+
+Step 3: As we will write and work with ansible playbook as a user ansiuser --> so it is good to give root permissions to this user -> ansiuser
+
+Step 4:
+
+generate an SSH key
+
+Step 5: Copy the SSH key
+
+ > use ssh command to copy the key
+
+Command:
+
+# ssh-copy-id username@ipaddressLinux2
+
+password: admin@1243
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

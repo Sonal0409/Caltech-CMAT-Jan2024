@@ -1,0 +1,395 @@
+Inventory file of ansible
+
+1. To check if Ansible controller can communicate with Worker1 and worker2
+
+
+Defult inventory file:
+
+/etc/ansible
+
+# sudo vim hosts
+
+
+In this host file we can add the ipaddress in various formats:
+
+Method 1: Ungrouped hosts
+
+172.31.6.107
+172.31.5.18
+
+Now we will use ansible ping module which will ping the the ipaddress and show us if the connection successfull or not
+
+
+Ansible adhoc command for ungrouped hosts in inventory file:
+
+Syntax:
+
+# ansible ipaddressofhost -m ping
+
+Example2: pass multiple ipaddress in the command
+
+# ansible ipaddr:ippaddr2  -m ping
+
+
+Method 2: grouped hosts
+
+# create a group
+
+[worker1]
+172.31.6.107
+
+[worker2]
+172.31.5.18
+
+[webserver]
+172.31.5.18
+172.31.6.107
+
+
+Ansible adhoc command for grouped hosts in inventory file:
+
+Syntax:
+
+# ansible groupname -m ping
+
+
+method 3: Creating subgroups inside a main group
+
+in this ansible will ping ipaddress of each group mentioned under main group
+
+[worker1]
+172.31.6.107
+
+
+[worker2]
+172.31.5.18
+
+
+[webserver]
+172.31.5.18
+172.31.6.107
+
+[allinfra:children]
+worker1
+worker2
+webserver
+
+
+# ansible allinfra -m ping
+
+
+============================
+
+Can we execute ansible commands from any directory fo your system  ==> Yes
+
+How does ansible get the inventory information/host file info
+
+In the ansible.cfg file we have a default parameter "inventory" whose value /etc/ansible/hosts
+
+In realtime, we have many users who will be using ACM
+
+We may have different application for which seperats host/inventory file are needed
+
+
+DEMO : Create our own inventory file in the current user directory and also update the ansible.cfg file with inventory location
+
+
+> Creating a custom static inventory file
+
+
+Demo: Create an ansible.cfg file where you mention ansible to look for inventory file in the current directory
+
+# ansible webserver -m ping
+
+> Always ansible will look for the group hosts/inventoryfile webserver in the current user directory first, if you dont have file in current directory, then its looks for host group in /etc/ansible/hosts
+
+=================================
+
+EXTRA DEMO:
+===============================
+Currently in our setup
+
+we have 3 VM - ubuntu OS - SL lab - same network
+
+Create a EC2 server on AWS and add it to your inventory file and see if ansible controller is able to communicate to it or not
+
+
+Execute the module on all the groups in the inventory file:
+
+# ansible all -m ping
+
+
+==================================================
+
+Ad-hoc Commands in Ansible:
+======================================================
+> These are single line commands
+> These command start with the keyword ansible
+> These commands can exeucte one module at a time on the host servers
+> In these command you mention the groupname/hostip
+> These command are useful when we have to exeucte something quickly on the hosts server
+> Whenever we want to check some information on hostservers, adhoc commands are used
+>These commands are not suitable to repetative activites.
+> If we have to run linux command, shell commands run quickly on host servers to check output , check status service we cna use adhoc commands.
+> These commands are not suitable for running set of tasks, for this we use Playbooks
+
+Syntax of adhoc command:
+
+# ansible hostgroupName -m modulename -a "attribute1=value"
+
+-m = module name
+
+-a = argument to be passed to the module
+
+
+File Module:
+=====================
+his module will create/delete files and directories
+
+ Parameters to be given:
+
+ 1. path => destination on host servers where file/directory has to be created
+
+ 2. state =>
+Choices:
+absent   ==> in the given path delete the file or directory
+directory ==> in the given path create a new directory if not present
+file ==>in the given path create a new file if not present
+touch => in the given path create a new empty file if not present
+
+3. owner
+
+4. group
+
+5. mode
+
+I will user a new user labsuser
+copy its ssh key on the worker1
+
+Create your own ansible.cfg file we will write parameters
+
+[defualts]
+inventory= ./myinventory
+remote_user= labsuser
+ask_pass=true
+host_key_checking=false
+forks=2
+[privilege_escalation]
+become=true
+become_user=root
+==========================
+
+
+ntroduction to YAML:
+==========================
+
+YAML : YAML Aint a mark language
+
+> It is not a programming language
+> It is not a scripting language
+> A way your store your data in a file
+> Any file in which you are having YAML data will have extension .yml or .YAML
+> A YAML file can store data as single value , as an array, as a list or as a map(dictonary)
+> Most of the times the key in YAML is given by the tool(ansible)
+> Value is provided by the user
+> space and identation is very important in YAML
+> often you will see that a YAML file starts with --- and ends with ...
+> you can use https://www.yamllint.com/ to validate if YAML written is correct or not.
+> In Ansible when you wrtie playbook, ansible can check the syntax.
+
+Syntax to store data in YAML:
+
+ key: value
+
+If we have to write YAMl  in which key sotres a single value:
+============================================================
+
+---
+course: DevOps
+Trainer: Sonal
+Company: Simplilearn
+Start_date: 10June
+Time: 7PM
+Days: Weekend
+
+If we have to write YAMl  in which key sotres a list of value:
+============================================================
+
+---
+courses:
+  - DevOps
+  - Jenkins
+  - CMAT
+  - DOCKER
+  - Kubernetes
+Trainers:
+  - Sonal
+  - Ravi
+  - John
+  - jack
+Company: Simplilearn
+Start_date:
+  - 10June
+  - 11June
+  - 12june
+  - 13june
+Time: 7PM
+Days: Weekend
+
+If we have to write YAMl  in which key sotres a dictonary value (map):
+============================================================
+
+mainKey:
+  key1: value1
+  key2: value
+  key3: value
+
+OR
+
+mainkey: key1=value key2=value key3=value
+
+
+
+Alice:
+ empid: 18767
+ emailid: alice@gmail.com
+ phone: 34254345
+
+BOB: empiid=1234 emailid=bob@gmail.com phone=233545
+
+
+---
+courses:
+  - DevOps
+  - Jenkins
+  - CMAT
+  - DOCKER
+  - Kubernetes
+Trainers:
+  - name: Sonal
+    email: sonal@gmail.com
+    course: devops
+  - name: Ravi
+    email: ravi@gmail.com
+    course: devops
+Company: Simplilearn
+Start_date:
+  - devops: 10June
+  - cmat: 11June
+  - docker: 12june
+  - kube: 13june
+Time: 7PM
+Days: Weekend
+===================================================
+
+
+Write a YAML which is storing key with single value
+
+ user: alice
+ user_password: alice
+
+Write a YAML which is storing key with multiple values(list)
+
+
+name:
+ - sonal
+ - alice
+ - bob
+
+
+Write a YAML which is storing key, this key again store another key and value
+
+
+users:
+ - name: Sonal
+ - group: Sonal
+ - uid: 2345
+ - owner: sonal
+
+
+users[name] = Sonal
+
+or
+
+users.name = Sonal
+
+or
+
+users.uid = 2345
+
+or
+
+users[uid] =2345
+=========================================
+
+ multiple users for storing another key and value
+
+Users:
+ - name: user1
+   passwd: ****
+   group: user1
+   owner: user1
+   uid:2345
+ - name: user2
+   passwd: *****
+   group: user2
+   owner: user2
+   uis: 2567
+ 
+Example:
+
+Users[0].name
+Users[0].passwd
+Users[1].name
+====================================================
+
+- BOB: empiid=1234 emailid=bob@gmail.com phone=233545
+- alice: empiid=1234 emailid=bob@gmail.com phone=233545
+
+=====================================================
+
+Ansible Playbooks:
+==================================================
+
+> Playbooks are used in Ansible to write configuration code
+> Whenver we ahve to do many chnages on varaious host we use playbook
+> whenever we want to use variable, conditions, loops we use playbooks
+> playbook allows us to reuse the code, save the code in VCS
+> Playbooks can be shared within the team and other users can exeucte them
+> Playbook can also be exeucted by Jenkins
+
+Playbook consist of 3 main information:
+
+1. Hosts ==>  host group where chnages will be done
+
+2. User details ==> which user will exeucte the tasks of the playbook, not mandatory
+
+3. tasks ==> modules which have to be exeucted on servers, Mandatory section of playbook
+
+Playbook Structure:
+=========================
+
+A playbook can consist of multiple plays
+
+---
+
+- name: This is play1
+  hosts: webserver
+  tasks: # multiple tasks
+  - name: anytext over here describe the nature of the task
+    modulename: key=value key=value
+  - name: another task2
+    modulename: key1-value key2=value
+
+=============================
+
+Command to check ansible playbook Synatx is correct or not
+
+# ansible-playbook <playbookname> --syntax-check
+
+Execution of playbook command:
+
+
+# ansible-playbook <playbookname>
+
+============================

@@ -1,0 +1,214 @@
+Demo 1: Write custom variables and its values in a new file.yml
+Call these variables in the playbook.
+
+For this we have to use the block vars_files in the playbook to refer to the variable
+
+================================================
+
+FACT Variables:
+=======================================
+
+Facts ==> are little snippet of information about your remote host servers
+
+Fact varaibles store information about remote host servers
+
+The information stored by fact variables are:
+network, storage, bios, mount point, OS,name
+
+The names os these variables are already defined by ansible
+
+There values are fetched  by the ansible controller by exeucting a module called as setup module
+
+Everytime we exeucte a playbook, by default ansible will gather the fatcs of each host and save in fact variable
+
+The default variable is ansible_facts
+
+The location to store facts is /etc/ansible/facts.d
+
+
+How are these fact variables used in Ansible:
+
+Mainly facts variables are used in ansible to apply conditions/decisions in playbook
+
+Using ansible fact variable we can get/capture information about host servers
+
+
+Demo: How to collect fact variables of every host server on Ansible controller
+
+
+ "ansible_hostname": "ip-172-31-8-23",
+
+
+Demo: Write a playbook to display variable fact variables:
+
+ansible_os_family = Debian
+ansible_distribution = Ubuntu
+ansible_distribution_major_version = 20
+
+ansible_all_ipv4_addresses
+
+
+
+
+Demo 2: Main use of fact variables in ansible playbook is for giving condition(if condition)
+
+
+In ansible if we want some tasks to run if a constion is satified --> use when keyword
+
+if the condition is not satisfed the task will be skipped
+
+Lets see how we can use when keyword
+
+So in playbooks, we use variables (fact/custom) to give conditions
+
+
+Demo: WHEN keyword
+
+Write a task with single condition to be satisfied
+
+while writing condition use fact variables
+
+=============================================
+
+Loops in ansible ==> loop keyword
+
+If we have to run a module again and again with different set of values, we make use of loops
+
+> Loop will pass value to the module using a variable called as {{item}}
+
+
+Demo: to install multiple package in host servers
+
+apache2
+mysql-server
+php-mysql
+php
+python3-mysqldb
+
+
+,
+        {
+            "First_name": "Mary",
+            "Groups": "Developers",
+            "Last_name": "Jenkins",
+            "Password": "iamjenkins",
+            "UID": "9346",
+            "Username": "jenkins46"
+            "state" : "present"
+        },
+        {
+            "First_name": "Jamie",
+            "Groups": "Operations",
+            "Last_name": "Smith",
+            "Password": "iamsmith",
+            "UID": "5079",
+            "Username": "smith79"
+            "state" : "absent"
+
+=================================
+
+tags in playbooks
+
+
+Tags in ansible help you run specific tasks form a playbook
+
+By default when a playbook is run it executes every task one by one
+
+If you want to run selective tasks then we use the concept of tags
+
+
+
+---
+- hosts: webserver
+  become: true
+  tasks:
+  - name: Execute a command
+    command: hostname -s
+    tags: command
+  - name: execute command 2
+    command: echo "hello"
+    tags: command
+  - name: install package
+    package: name=tree state=present
+    tags: install
+  - name: insall package2
+    package: name=apache2 state=present
+    tags: install
+  - name: create a file
+    file: path=/tmp/filenew state=touch
+  - name: uninstall packge
+    package: name=tree state=absent
+    tags: uninstall
+
+
+Deploy a HTML file on apche server
+
+- name: Deploy HTML page on Apache webserver
+  hosts: webserver
+  become: true
+  vars:
+   pkg_name: apache2
+   file_name: index.html
+   dest_path: /var/www/html
+  tasks:
+  - name: update apt-get repo
+    command: apt-get update
+  - name: Install apache2
+    package: name={{pkg_name}} state=present
+    when: ansible_distribution == "Ubuntu"
+  - name: Start the apache2 server
+    service: name={{pkg_name}} state=started
+  - name: Copy the html code on apache2 server
+    copy: src={{file_name}} dest={{dest_path}}
+  - name: Restart Server
+    service: name={{pkg_name}} state=restarted
+
+
+Lets say we have a requirement that
+======================================
+
+ > only and only if Deployment task status is changed [ status will be chnaged each time we copy updated index.html]
+   > then only execute Restart of the server
+
+
+TASK [Copy the html code on apache2 server] ******************************************************************
+changed: [172.31.31.50]
+changed: [172.31.25.226]
+
+RUNNING HANDLER [Restart Server] *****************************************************************************
+changed: [172.31.31.50]
+changed: [172.31.25.226]
+
+
+
+ > if status of Deployment task is ok [ status will ok when there is no change in the index.html]
+   > then donot execute Restart of the server
+
+TASK [Copy the html code on apache2 server] ******************************************************************
+ok: [172.31.31.50]
+ok: [172.31.25.226]
+
+
+
+
+We can achieve this we using Handlers section in the playbook
+
+
+Handlers section will have set of tasks, that will get executed only and only when notified by the parent task
+
+
+As the parent task status is changed -> we notify the handler task to execute
+
+But execution of handlers will always happen at the end of the playbook
+
+All the handlers tasks that have been notified during the playbook execution, will get executed at the end one by one
+
+
+But you may say, we want the handler task to be executed as soon as it is notified
+
+ task1 -> changed
+ notify -> handler task
+ execute/flush -> handler task
+
+
+This can be achieved using the module called as meta module

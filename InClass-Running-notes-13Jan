@@ -1,0 +1,157 @@
+
+Ansible Playbooks:
+==================================================
+
+> Playbooks are used in Ansible to write configuration code
+> Whenver we ahve to do many chnages on varaious host we use playbook
+> whenever we want to use variable, conditions, loops we use playbooks
+> playbook allows us to reuse the code, save the code in VCS
+> Playbooks can be shared within the team and other users can exeucte them
+> Playbook can also be exeucted by Jenkins
+
+Playbook consist of 3 main information:
+
+1. Hosts ==>  host group where chnages will be done
+
+2. User details ==> which user will exeucte the tasks of the playbook, not mandatory
+
+3. tasks ==> modules which have to be exeucted on servers, Mandatory section of playbook
+
+Playbook Structure:
+=========================
+
+A playbook can consist of multiple plays
+
+---
+
+- name: This is play1
+  hosts: webserver
+  tasks: # multiple tasks
+  - name: anytext over here describe the nature of the task
+    modulename: key=value key=value
+  - name: another task2
+    modulename: key1-value key2=value
+
+=============================
+
+Command to check ansible playbook Synatx is correct or not
+
+# ansible-playbook <playbookname> --syntax-check
+
+Execution of playbook command:
+
+
+# ansible-playbook <playbookname>
+
+============================
+
+1. Debug Module:
+=============================
+This module prints statements during execution and also prints value of variables
+
+To print message we use parameter => msg: "Hello"
+To print value of a variables we use parameter => var: var1 
+
+2. Register:
+=======================
+What is a variable : a variable is a memory location whcih stores a value
+
+> Ansible Register is a way to capture the output from a task execution 
+> Ansible register stores the output in a variable
+> This is an important feature of ansible, as ouput of every host server is different
+> Register variable will store data differently for each hosts
+
+Use of register variable:
+
+ > register variable cna used to for setting conditions in playbook
+
+Example: If i want to check if docker service is up or not on all host servers, 
+
+I may exeucte a command: systemctl status docker
+
+Its output needs to be stored somehwere --> it stores in register variable
+
+This varibale can then be used further inyour playbook
+=====================================
+
+Variables in playbook:
+
+========================================
+> just like in any programming or scripting language variables are used to save some data.
+> same is the concept in Ansible playbooks also.
+> In ansible a value is assigned to a variable, this value is then reffered in the playbook or at the runtime
+> Variables in ansible can be used in Playbooks, commandline, inventory file
+> Variables are of 2 types:
+    - custom Variable
+       - variable where name and value is given by user
+
+    - Fact variables/magical variables/special variable
+       - These are variables provided by Ansible
+       - There name and value is given by ansible - pre defined by ansible
+       - user will not change the value
+       - These variable store complete information about your host servers
+       - Fact variables will always start with ansible keyword
+
+Custom Variables:
+==========================
+
+These are the set of rules to be follwoed while giving name to the variables in ansible:
+
+> A valid variable name can start with uppercase or lower case
+> A valid variable will conatiner, letters, digits and _
+> not give custom varible name starting with ansible or python keyword or playbook keyword
+> prefferd that give a short and meanigful name to a variable
+
+Example valid variable name:
+
+ country
+ pkg_name
+ week_day
+ country001
+ PKG_STATE
+
+Example of some invalid variables:
+
+ #country
+ pkg-name
+ 234pkg
+ @weekday
+
+
+> variables can be defined and reffered in a playbook
+
+1. A simple variable storing single value:
+
+Variables in a playbook are written in seperate section above tasks section which is called as vars
+In vars section your give variable and its value
+
+{{variable_name}} refering to the value of the variable
+
+Scope of the variable is only in this playbook
+
+Example:
+
+- hosts: webserver
+  vars:   # defining variable
+   user: admin
+  tasks:
+  - name: print username
+    debug: 
+     msg: "the value is : {{user}}" refering to the value of the variable
+  - name: execute command
+    command: ls /tmp
+    register: store_data
+
+2. variable storing multiple values in vars block:
+
+   vars:
+    pkg_name:
+     - tree
+     - wget
+     - nano
+    user:
+     name: alice
+     age: 32     
+
+3. Variables can be defined outside the playbook in a seperate YAML file and refer the variable in your playbook.
+This can be acheived using vars_files block

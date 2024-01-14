@@ -1,0 +1,30 @@
+---
+- name: cron module demo
+  hosts: all
+  tasks:
+   - name: "example cronjob"
+     ansible.builtin.cron:
+      name: "test"
+      state: present
+      minute: "*/2"
+      hour: "*"
+      day: "*"
+      month: "*"
+      weekday: "*"
+      job: 'logger "ansible-pilot"'
+
+
+The logger command in Linux is a tool that allows you to add your own messages to the system log
+
+sudo crontab -l
+
+sudo tail -f /var/log/cron
+
+wait for 2 mins.. the message will be printed
+
+
+you can see the output at
+
+
+sudo tail -f /var/log/messages
+

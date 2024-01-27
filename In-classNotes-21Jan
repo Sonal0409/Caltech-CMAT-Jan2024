@@ -1,0 +1,108 @@
+Dynamic Inventory:
+==================================
+
+> Dynamic inventory is possible only when we have infrastructure on Cloud
+
+> When we are using Ansible we can create dynamic inventory file using the cloud dynamic inventory ansible plugin
+
+> With dynamic inventory, ansible will be able to compute the ipaddres sof the servers on cloud platform in real time
+
+> this is the most easiest solution when we have dynamic or fast chnaging infrastructure.
+
+
+Demo:
+
+> Setup Ansible AWS dynamic Inventory
+> Install anisble aws plugin
+> install boto boto3 aws SDK
+> python3 is already there in lab
+> create AWS accesskey and secret key
+> ansible.cfg file and update the plugin details
+> List the inventory in ACM
+
+
+Go to :
+https://docs.ansible.com/ansible/latest/collections/amazon/aws/aws_ec2_inventory.html
+
+Copy command to install amazon aws on lab
+
+# ansible-galaxy collection install amazon.aws
+
+Install boto3 and botocore
+
+# sudo apt install python3-pip
+
+# pip3 install boto3
+
+it installs both boto3 and botocore
+
+
+Update the ansible.cfg file under /etc/ansible directory
+
+
+cd /etc/ansible
+
+sudo vim ansible.cfg
+
+[defaults]
+
+enable_plugins = aws_ec2
+
+
+Save the file
+
+Create the aws_ec2.yml file which will your inventory
+
+sudo vim aws_ec2.yml
+
+plugin: amazon.aws.aws_ec2
+regions:
+  - us-east-1
+
+Save the file.
+
+Create access key and secret key and save it as environment variables:
+
+ export AWS_ACCESS_KEY_ID=AKIAUJU24ZR3S4I7TOUS
+ export AWS_SECRET_ACCESS_KEY=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
+
+Now execute the command to list the inventory:
+
+ansible-inventory -i /etc/ansible/aws_ec2.yml --list
+
+You will see the inventory information under 
+
+"aws_ec2": {
+        "hosts": [
+            "ec2-34-227-191-8.compute-1.amazonaws.com",
+            "ec2-52-90-18-208.compute-1.amazonaws.com",
+            "ec2-54-158-3-77.compute-1.amazonaws.com",
+            "ec2-54-196-42-97.compute-1.amazonaws.com",
+            "ec2-54-234-48-31.compute-1.amazonaws.com",
+            "ec2-54-242-128-168.compute-1.amazonaws.com"
+        ]
+    }
+}
+
+===========================
+
+In order to execute any modules on the inventory, we have to do the SSH connection
+
+Take an Ec2 machine and perform the 4 steps of ansiuser creation and ssh connection
+
+# sudo adduser ansiuser
+
+# vim /etc/ssh/sshd_config
+
+# passwd ansiuser
+
+# vim /etc/sudoers
+
+
+Now go to ACM machine and copy the ssh key and use publci key fo AWS ec2 instance
+
+# ssh-copy-id -i ansiuser@publicipEc2
+
+It will be successfull
+
+=========================

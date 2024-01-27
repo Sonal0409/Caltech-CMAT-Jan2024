@@ -1,0 +1,99 @@
+
+Every Playbook in Ansible includes following sections:
+
+> Tasks
+      > loop
+      > condition
+      > tags
+> Vars
+> vars_files
+> Handlers
+> files directory
+> jinja2 templates
+
+Writing all the sections in a single file will be difficult to manage and troubleshoot
+
+If your playbook is having many tasks or many variables and is using templaes, handlers -> writing everything ina  single file is not a best approach
+
+So Ansible comes with concept called Ansible Roles
+
+Ansible Roles is a way of managing or writing your playbooks
+
+Ansible Roles are nothing but set of directories, These directories consist of various sections of playbook
+
+Basically with Ansible roles we are breaking down a playbook in several several directoires/files
+
+In the directoires we have empty YAML files, in which we can write ansible code.
+
+The number of directories and names of the directories are fixed and is provided by Ansible
+
+Once the Role is ready, we call the role in a playbook.
+
+In a playbook we can call many Roles
+
+
+ROLES  => rolename => apache
+
+	1. First directory in a ROLE ==> another directory gets created with name as  => tasks
+		> main.yml
+                         >The main.yml file will be present in the tasks directory.
+				> in this file we write the tasks to be executed by ansible on the worker nodes
+Example:
+
+  - name: read package value from list
+     debug: msg="the package is {{pkgs[0]}}
+   - name: install package
+     yum: name={{pkgs[0]}} state=present
+   - name: read package value as maps
+     debug: msg="the package is {{pkgs2.linux}}
+   - name: Install package
+     yum: name={{pkgs2.linux}} state=present
+
+	2. Second Directory in the ROLE ==> vars directory
+               > main.yml
+                         >The main.yml file will be present in the vars directory.
+                              > in this file we write the names of variables and their values that are used by tasks
+                                
+example:
+
+pkgs:
+ - docker
+ - git
+ - wget
+
+pkgs2:
+ linux: httpd
+ ubuntu: apache2
+
+	3. Third Directory in the Role  => defaults directory
+			> main.yml
+                         >The main.yml file will be present in the defaults directory.
+                              > in this file we write the names of variables and their values that are used by tasks
+
+
+	4. Fourth Directory in the role  => templates directory
+			> jinja2 file => all .j2 files will be present
+				> In this directory we will prepare the jinja2 templates. that our task will copy on worker nodes
+
+	5. Fifth Directory in the role  => files directory
+			> Any kind of files will be present
+				> In this directory we will prepare the files. that our task will copy on worker nodes
+
+
+
+	6. Sixth Directory in the role => Handlers directory
+                    > > main.yml
+                         >The main.yml file will be present in the handlers directory.
+				> In this directory we will write handlers tasks which are executed on notification.
+
+
+
+How will the roles be executed
+
+> with help of playbook
+
+ - hosts: webserver
+   become: true
+   roles:
+     - packgeinstall   execution==> tasks ==> vars==> templates==>handlers
+     - apache2           execution==> tasks ==> vars==> templates==>handlers

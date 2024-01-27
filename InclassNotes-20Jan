@@ -1,0 +1,41 @@
+==================================================
+
+Jinja2 template:
+=============================================
+
+
+
+What is a template:
+
+Template is a simple file which consist of:
+
+  > text
+  > dynamic variables ( variable whocse value changes as per every host)-> fact variables
+  > static variables ( variable whocse value remain same for every host)--> custom variables
+  > comments
+  > loop conditions, if consition
+  > arguments/filters
+
+Jinja2 is a way to write templates in Ansible
+
+***
+> Becuase of Jinja2 template, it is easy to do configurations unique to every server
+> These templates change content of the file as per every servers fact
+> These Jinja2 templates when executed by ansible will compute variable values in real time and then copy the file on every server
+> With jinja2 template we make use of TEMPLATE module of ansibleto copy the Jinja2 file
+> Jinja2 templates will ahve extension as .j2
+
+ template name will be ==> file1.txt.j2  when copied on host server ==> file1.txt
+
+template name will be ==>index.html.j2==> when copied on host server ==> index.html 
+
+template name will be ==> file1.j2
+
+template name will be ==> file1.conf.j2
+
+
+===========================================
+
+Whenever ansible runs a playbook with template module, it will look for jinja2 template in the current directory
+
+In jinja2 template, if we have refer/call a custom or fact variable we use {{ variablename }}
